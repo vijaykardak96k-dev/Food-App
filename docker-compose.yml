@@ -1,0 +1,24 @@
+# Docker is used ONLY for the MySQL database.
+# The backend and frontend run directly on your machine.
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: cravo-mysql
+    restart: unless-stopped
+    environment:
+      # Local development password. Must match DB_PASSWORD in backend/.env
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-cravo_local_pw}
+      MYSQL_DATABASE: food_delivery
+    ports:
+      - "3306:3306"
+    volumes:
+      - cravo_mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  cravo_mysql_data:
